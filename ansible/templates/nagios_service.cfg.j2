@@ -2,7 +2,7 @@
 define service {
     use                     generic-service
     host_name               localhost
-    service_description     Node-Mongo App HTTP ({{ image_tag }})
+    service_description     Node-App-HTTP-Check
     check_command           check_http!-p 30090 -u /health -e 200
     check_interval          2
     retry_interval          1
@@ -11,6 +11,6 @@ define service {
 define service {
     use                     generic-service
     host_name               localhost
-    service_description     MongoDB Port Check
-    check_command           check_nrpe!check_mongo
+    service_description     MongoDB-Port-Check
+    check_command           check_tcp!27017
 }
