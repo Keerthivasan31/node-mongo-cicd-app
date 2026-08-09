@@ -7,10 +7,3 @@ define service {
     check_interval          2
     retry_interval          1
 }
-
-define service {
-    use                     generic-service
-    host_name               localhost
-    service_description     MongoDB-Port-Check
-    check_command           check_tcp!27017
-}
