@@ -12,5 +12,5 @@ define service {
     use                     generic-service
     host_name               localhost
     service_description     MongoDB-Port-Check
-    check_command           check_nrpe!check_mongo
+    check_command           check_tcp!30017
 }
