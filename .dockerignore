@@ -1,0 +1,5 @@
+node_modules
+.git
+ansible
+k8s
+Jenkinsfile

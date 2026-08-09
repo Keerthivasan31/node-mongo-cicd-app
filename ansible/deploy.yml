@@ -1,0 +1,70 @@
+---
+- name: Deploy Node+Mongo app to Kubernetes
+  hosts: k8s_control
+  gather_facts: false
+  vars:
+    image_name: "{{ docker_image }}"
+    manifests_dir: "{{ workspace_dir }}/k8s"
+    kubeconfig: /home/jenkins-kubeconfig
+  tasks:
+    - name: Substitute the image tag in the app deployment manifest
+      replace:
+        path: "{{ manifests_dir }}/app-deployment.yaml"
+        regexp: '<DOCKERHUB_USERNAME>/node-mongo-cicd-app:latest'
+        replace: "{{ image_name }}"
+
+    - name: Apply all Kubernetes manifests in order
+      command: "kubectl apply -f {{ manifests_dir }}/{{ item }}"
+      environment:
+        KUBECONFIG: "{{ kubeconfig }}"
+      loop:
+        - namespace.yaml
+        - secret.yaml
+        - configmap.yaml
+        - mongo-statefulset.yaml
+        - mongo-service.yaml
+        - app-deployment.yaml
+        - app-service.yaml
+
+    - name: Wait for app rollout to complete
+      command: kubectl rollout status deployment/node-app -n nodeapp --timeout=180s
+      environment:
+        KUBECONFIG: "{{ kubeconfig }}"
+
+- name: Configure Nagios monitoring for this deployment
+  hosts: monitoring
+  become: true
+  gather_facts: false
+  vars:
+    image_tag: "{{ docker_image }}"
+  tasks:
+    - name: Add the NRPE check for MongoDB port
+      lineinfile:
+        path: /usr/local/nagios/etc/nrpe.cfg
+        line: "command[check_mongo]=/usr/local/nagios/libexec/check_tcp -H localhost -p 27017"
+        create: yes
+
+    - name: Render the Nagios service definition from template
+      template:
+        src: templates/nagios_service.cfg.j2
+        dest: /usr/local/nagios/etc/objects/nodeapp.cfg
+
+    - name: Ensure the config file is included in nagios.cfg
+      lineinfile:
+        path: /usr/local/nagios/etc/nagios.cfg
+        line: "cfg_file=/usr/local/nagios/etc/objects/nodeapp.cfg"
+
+    - name: Validate Nagios configuration
+      command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+      register: nagios_check
+      changed_when: false
+
+    - name: Restart NRPE
+      systemd:
+        name: nrpe
+        state: restarted
+
+    - name: Restart Nagios to pick up new checks
+      systemd:
+        name: nagios
+        state: restarted
