@@ -14,4 +14,8 @@ EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3000/health || exit 1
 
+<<<<<<< HEAD
 CMD ["npm", "start"]
+=======
+CMD ["npm", "start"]
+>>>>>>> 83e540b59e7ebbd7743c733e9e151af8f14e8662
