@@ -41,7 +41,7 @@
     - name: Add the NRPE check for MongoDB port
       lineinfile:
         path: /usr/local/nagios/etc/nrpe.cfg
-        line: "command[check_mongo]=/usr/local/nagios/libexec/check_tcp -H localhost -p 27017"
+        line: "command[check_mongo]=/usr/local/nagios/libexec/check_tcp -H localhost -p 30017"
         create: yes
 
     - name: Render the Nagios service definition from template
