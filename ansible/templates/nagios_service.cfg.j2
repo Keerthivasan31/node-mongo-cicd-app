@@ -1,7 +1,7 @@
 # Managed by Ansible — do not edit by hand
 define service {
     use                     generic-service
-    host_name               devops-lab
+    host_name               localhost
     service_description     Node-Mongo App HTTP ({{ image_tag }})
     check_command           check_http!-p 30090 -u /health -e 200
     check_interval          2
@@ -10,7 +10,7 @@ define service {
 
 define service {
     use                     generic-service
-    host_name               devops-lab
+    host_name               localhost
     service_description     MongoDB Port Check
     check_command           check_nrpe!check_mongo
 }
