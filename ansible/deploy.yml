@@ -10,7 +10,7 @@
     - name: Substitute the image tag in the app deployment manifest
       replace:
         path: "{{ manifests_dir }}/app-deployment.yaml"
-        regexp: 'kvmax/node-mongo-cicd-app:latest'
+        regexp: '<DOCKERHUB_USERNAME>/node-mongo-cicd-app:latest'
         replace: "{{ image_name }}"
 
     - name: Apply all Kubernetes manifests in order
