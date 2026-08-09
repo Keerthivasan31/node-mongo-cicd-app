@@ -16,7 +16,8 @@ pipeline {
         stage('Install & Test') {
             agent { docker { image 'node:20-slim' } }
             steps {
-                sh 'npm install'
+                // Fixed: write npm cache to the local workspace to bypass root permission errors
+                sh 'npm install --cache .npm-cache'
                 sh 'npm test'
             }
         }
@@ -35,9 +36,12 @@ pipeline {
         stage('Deploy + Configure Monitoring with Ansible') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG_FILE')]) {
+                    // Fixed: Removed sudo, copied to workspace, secured permissions, and exported for Ansible
                     sh '''
-                        sudo cp $KUBECONFIG_FILE /home/jenkins-kubeconfig
-                        sudo chmod 644 /home/jenkins-kubeconfig
+                        cp $KUBECONFIG_FILE ./jenkins-kubeconfig
+                        chmod 600 ./jenkins-kubeconfig
+                        export KUBECONFIG=./jenkins-kubeconfig
+                        
                         ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
                             --extra-vars "docker_image=${IMAGE_NAME}:${IMAGE_TAG} workspace_dir=${WORKSPACE}"
                     '''
@@ -52,6 +56,6 @@ pipeline {
     }
     post {
         success { echo "Node+Mongo app deployed and monitoring configured." }
-        failure { echo "Pipeline failed — check console output." }
+        failure { echo "Pipeline failed - check console output." }
     }
 }
