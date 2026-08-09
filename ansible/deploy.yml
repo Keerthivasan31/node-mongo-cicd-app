@@ -5,12 +5,12 @@
   vars:
     image_name: "{{ docker_image }}"
     manifests_dir: "{{ workspace_dir }}/k8s"
-    kubeconfig: /home/jenkins-kubeconfig
+    kubeconfig: "{{ workspace_dir }}/jenkins-kubeconfig"
   tasks:
     - name: Substitute the image tag in the app deployment manifest
       replace:
         path: "{{ manifests_dir }}/app-deployment.yaml"
-        regexp: '<DOCKERHUB_USERNAME>/node-mongo-cicd-app:latest'
+        regexp: 'kvmax/node-mongo-cicd-app:latest'
         replace: "{{ image_name }}"
 
     - name: Apply all Kubernetes manifests in order
