@@ -20,7 +20,7 @@ const Item = mongoose.model(
 );
 
 app.get("/", (req, res) => {
-  res.json({ message: "Node + MongoDB CI/CD pipeline is running" });
+  res.json({ message: "Node + MongoDB CI/CD pipeline is running but i change new its for checking" });
 });
 
 app.get("/health", (req, res) => {
