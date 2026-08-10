@@ -32,7 +32,7 @@ const Item = mongoose.model(
 app.get("/", (req, res) => {
   res.json({ 
     status: "success",
-    message: "Node + MongoDB CI/CD pipeline is running smoothly!",
+    message: "Node + MongoDB CI/CD pipeline is running smoothly and superly its works!",
     timestamp: new Date()
   });
 });
